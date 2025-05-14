@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brand Execution Positioning</title>
+  
+  <!-- Load React, ReactDOM, and Recharts from CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script crossorigin src="https://unpkg.com/recharts@2.5.0/umd/Recharts.min.js"></script>
+  
+  <!-- Basic styling -->
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    #root {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .bg-white {
+      background-color: white;
+    }
+    .p-6 {
+      padding: 24px;
+    }
+    .text-2xl {
+      font-size: 24px;
+    }
+    .text-lg {
+      font-size: 18px;
+    }
+    .text-sm {
+      font-size: 14px;
+    }
+    .text-xs {
+      font-size: 12px;
+    }
+    .font-bold {
+      font-weight: bold;
+    }
+    .font-semibold {
+      font-weight: 600;
+    }
+    .mb-1 {
+      margin-bottom: 4px;
+    }
+    .mb-2 {
+      margin-bottom: 8px;
+    }
+    .mb-6 {
+      margin-bottom: 24px;
+    }
+    .mt-6 {
+      margin-top: 24px;
+    }
+    .text-center {
+      text-align: center;
+    }
+    .text-right {
+      text-align: right;
+    }
+    .text-gray-600 {
+      color: #4b5563;
+    }
+    .text-gray-500 {
+      color: #6b7280;
+    }
+    .italic {
+      font-style: italic;
+    }
+    .h-96 {
+      height: 500px;
+    }
+    .bg-gray-50 {
+      background-color: #f9fafb;
+    }
+    .rounded {
+      border-radius: 6px;
+    }
+    .border {
+      border-width: 1px;
+    }
+    .border-gray-200 {
+      border-color: #e5e7eb;
+    }
+    .p-4 {
+      padding: 16px;
+    }
+    .p-3 {
+      padding: 12px;
+    }
+    .space-y-2 > * + * {
+      margin-top: 8px;
+    }
+    .list-disc {
+      list-style-type: disc;
+    }
+    .pl-5 {
+      padding-left: 20px;
+    }
+    .shadow-lg {
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    // Destructure required components from Recharts
+    const {
+      ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, 
+      ReferenceLine, ResponsiveContainer
+    } = Recharts;
+    
+    // Main component
+    const BrandPositioningChart = () => {
+      // Data for the companies with significantly different revenue sizes
+      const companiesData = [
+        { x: 3.5, y: 0.45, z: 140, name: 'Under Armour', color: '#DD0031', revenue: 6.0 },
+        { x: 4.5, y: 0.58, z: 180, name: 'Lululemon', color: '#333333', revenue: 8.4 },
+        { x: 5.5, y: 0.54, z: 300, name: 'Nike', color: '#333333', revenue: 51.5 },
+        { x: 5.0, y: 0.48, z: 230, name: 'Adidas', color: '#333333', revenue: 22.3 },
+        { x: 4.5, y: 0.44, z: 100, name: 'Puma', color: '#333333', revenue: 8.6 },
+        { x: 5.8, y: 0.40, z: 150, name: 'Decathlon', color: '#333333', revenue: 15.2 },
+        { x: 3.5, y: 0.39, z: 60, name: 'Reebok', color: '#333333', revenue: 3.5 },
+        { x: 3.6, y: 0.38, z: 55, name: 'Fila', color: '#333333', revenue: 3.2 },
+        { x: 2.8, y: 0.34, z: 40, name: 'Asics', color: '#333333', revenue: 3.0 },
+        { x: 2.7, y: 0.53, z: 35, name: 'NOBULL', color: '#333333', revenue: 0.8 },
+        { x: 6.5, y: 0.35, z: 120, name: 'Private Label', color: '#333333', revenue: 12.0 }
+      ];
+
+      // Define quadrant labels with appropriate positioning
+      const quadrantLabels = [
+        { x: 5.5, y: 0.55, text: 'Market Leaders', position: { x: 5.5, y: 0.61 } }
+      ];
+
+      // Optimized label positioning to avoid overlaps with varied circle sizes
+      const getLabelPosition = (name, cx, cy) => {
+        const positions = {
+          'Under Armour': { x: cx, y: cy - 20, anchor: 'middle' },
+          'Lululemon': { x: cx + 20, y: cy, anchor: 'start' },
+          'Nike': { x: cx + 30, y: cy, anchor: 'start' },
+          'Adidas': { x: cx + 25, y: cy, anchor: 'start' },
+          'Puma': { x: cx - 20, y: cy, anchor: 'end' },
+          'Decathlon': { x: cx + 20, y: cy, anchor: 'start' },
+          'Reebok': { x: cx, y: cy + 16, anchor: 'middle' },
+          'Fila': { x: cx + 15, y: cy - 15, anchor: 'start' },
+          'Asics': { x: cx, y: cy - 15, anchor: 'middle' },
+          'NOBULL': { x: cx + 15, y: cy, anchor: 'start' },
+          'Private Label': { x: cx, y: cy - 20, anchor: 'middle' }
+        };
+        
+        return positions[name] || { x: cx, y: cy - 15, anchor: 'middle' };
+      };
+
+      // Custom tooltip with improved styling and accurate revenue info
+      const CustomTooltip = ({ active, payload }) => {
+        if (active && payload && payload.length) {
+          const company = payload[0].payload;
+          return (
+            <div style={{ 
+              backgroundColor: 'white', 
+              padding: '12px', 
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', 
+              border: '1px solid #e5e7eb', 
+              borderRadius: '6px' 
+            }}>
+              <p style={{ fontWeight: 'bold', fontSize: '18px', margin: '0 0 4px' }}>{company.name}</p>
+              <p style={{ margin: '0 0 4px' }}>Inventory Turns: {company.x.toFixed(1)}</p>
+              <p style={{ margin: '0 0 4px' }}>Gross Margin: {(company.y * 100).toFixed(1)}%</p>
+              <p style={{ fontSize: '14px', color: '#4b5563', marginTop: '4px', margin: '0' }}>Annual Revenue: ${company.revenue}B</p>
+            </div>
+          );
+        }
+        return null;
+      };
+
+      return (
+        <div className="bg-white p-6">
+          <h2 className="text-2xl font-bold mb-1 text-center">Brand Execution Positioning: UA's Path Toward Market Leadership</h2>
+          <p className="text-gray-600 text-sm mb-2 text-center">Q1 2025 Competitive Analysis - Gross Margin vs. Inventory Efficiency</p>
+          <p className="text-gray-600 text-xs mb-6 text-center italic">Circle size represents annual revenue</p>
+          
+          <div className="h-96">
+            <ResponsiveContainer width="100%" height="100%">
+              <ScatterChart
+                margin={{ top: 40, right: 40, bottom: 60, left: 60 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" opacity={0.7} />
+                
+                {/* X-Axis with better label positioning */}
+                <XAxis 
+                  type="number" 
+                  dataKey="x" 
+                  name="Inventory Turns" 
+                  domain={[2, 8]} 
+                  label={{ 
+                    value: 'Inventory Turns', 
+                    position: 'insideBottom',
+                    offset: -10
+                  }}
+                  padding={{ left: 30, right: 30 }}
+                />
+                
+                {/* Y-Axis with percentage formatting */}
+                <YAxis 
+                  type="number" 
+                  dataKey="y" 
+                  name="Gross Margin" 
+                  domain={[0.30, 0.65]} 
+                  tickFormatter={(value) => `${(value * 100).toFixed(0)}%`}
+                  label={{ 
+                    value: 'Gross Margin (%)', 
+                    angle: -90, 
+                    position: 'insideLeft',
+                    offset: -15
+                  }}
+                  padding={{ top: 20, bottom: 20 }}
+                />
+                
+                {/* Reference lines for quadrants */}
+                <ReferenceLine 
+                  x={4} 
+                  stroke="#666" 
+                  strokeDasharray="3 3" 
+                  label={{ 
+                    value: 'Industry Avg. Turns', 
+                    position: 'insideBottomRight', 
+                    offset: 15,
+                    fill: '#666',
+                    fontSize: 12
+                  }} 
+                />
+                
+                <ReferenceLine 
+                  y={0.44} 
+                  stroke="#666" 
+                  strokeDasharray="3 3" 
+                  label={{ 
+                    value: 'Industry Avg. Margin', 
+                    position: 'insideRight', 
+                    offset: 15,
+                    fill: '#666',
+                    fontSize: 12
+                  }} 
+                />
+                
+                {/* Enhanced tooltip */}
+                <Tooltip content={<CustomTooltip />} />
+                
+                {/* Company data points with direct radius scaling */}
+                <Scatter 
+                  data={companiesData} 
+                  shape={(props) => {
+                    const { cx, cy, payload } = props;
+                    const position = getLabelPosition(payload.name, cx, cy);
+                    
+                    // Calculate radius directly based on revenue for dramatic size differences
+                    const getRadius = (revenue) => {
+                      // Base sizing on revenue with dramatic scaling
+                      if (revenue > 50) return 25; // Nike
+                      if (revenue > 20) return 20; // Adidas
+                      if (revenue > 10) return 16; // Decathlon, Private Label
+                      if (revenue > 5) return 12;  // Lululemon, Puma, Under Armour
+                      if (revenue > 2) return 8;   // Reebok, Fila, Asics
+                      return 6;                   // NOBULL
+                    };
+                    
+                    const radius = getRadius(payload.revenue);
+                    
+                    return (
+                      <g>
+                        {/* Company circle */}
+                        <circle 
+                          cx={cx} 
+                          cy={cy} 
+                          r={radius} 
+                          fill={payload.color} 
+                          stroke="#fff"
+                          strokeWidth={payload.name === 'Under Armour' ? 2 : 1}
+                          opacity={0.8}
+                        />
+                        
+                        {/* Company label - positioned to avoid overlap */}
+                        <text 
+                          x={position.x}
+                          y={position.y}
+                          textAnchor={position.anchor}
+                          fontSize="11"
+                          fontWeight={payload.name === 'Under Armour' ? 'bold' : 'normal'}
+                          fill={payload.name === 'Under Armour' ? '#DD0031' : '#333'}
+                        >
+                          {payload.name}
+                        </text>
+                      </g>
+                    );
+                  }}
+                />
+                
+                {/* Quadrant labels */}
+                {quadrantLabels.map((label, index) => (
+                  <g key={index}>
+                    <text
+                      x={(label.position.x) * 100}
+                      y={(label.position.y) * 100}
+                      textAnchor="middle"
+                      fontSize="12"
+                      fontWeight="600"
+                      fill="#444"
+                    >
+                      {label.text}
+                    </text>
+                  </g>
+                ))}
+              </ScatterChart>
+            </ResponsiveContainer>
+          </div>
+          
+          {/* Insights panel */}
+          <div className="mt-6 p-4 bg-gray-50 rounded border border-gray-200">
+            <h3 className="font-bold text-lg mb-2">Strategic Insights:</h3>
+            <ul className="list-disc pl-5 space-y-2 text-sm">
+              <li><span className="font-semibold">Market Leaders Quadrant:</span> Nike ($51.5B revenue) dominates the sector, while Lululemon ($8.4B) achieves the highest margins through premium positioning</li>
+              <li><span className="font-semibold">Under Armour's Opportunity:</span> With $6.0B in revenue, UA has potential for 18% margin improvement and 40% inventory efficiency increase by advancing to Market Leaders</li>
+              <li><span className="font-semibold">Scale Advantage:</span> Larger players (Nike, Adidas) leverage economies of scale for superior inventory velocity</li>
+              <li><span className="font-semibold">Premium Niche:</span> Smaller companies like NOBULL show premium positioning can achieve high margins despite lower scale</li>
+            </ul>
+          </div>
+          
+          <div className="mt-6 text-xs text-right text-gray-500">
+            <p>Source: Industry Analysis and Financial Reporting Q1 2025 | Prepared by Strategic Analytics Team</p>
+          </div>
+        </div>
+      );
+    };
+
+    // Render the app
+    ReactDOM.render(
+      <BrandPositioningChart />,
+      document.getElementById('root')
+    );
+  </script>
+</body>
+</html>
